@@ -119,19 +119,18 @@ public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
    * those annotated with the annotationClass
    */
   /**
-   * 注册我们自定义的Filter，也就是基于自定义注解
+   * 注册扫描为mybatis的mapper的bean
    */
   public void registerFilters() {
     boolean acceptAllInterfaces = true;
 
     // if specified, use the given annotation and / or marker interface
-    /**自定义注解不为空*/
+    //添加符合注解的mapper
     if (this.annotationClass != null) {
       /**创建自定义注解的AnnotationTypeFilter*/
       addIncludeFilter(new AnnotationTypeFilter(this.annotationClass));
       acceptAllInterfaces = false;
     }
-    /**可以看到自定义注解为空的时候*/
     // override AssignableTypeFilter to ignore matches on the actual marker interface
     if (this.markerInterface != null) {
       addIncludeFilter(new AssignableTypeFilter(this.markerInterface) {
@@ -142,7 +141,7 @@ public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
       });
       acceptAllInterfaces = false;
     }
-
+    //未定义，那么就扫描报下的所有接口
     if (acceptAllInterfaces) {
       // default include filter that accepts all classes
       addIncludeFilter((metadataReader, metadataReaderFactory) -> true);
@@ -198,28 +197,24 @@ public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
       LOGGER.debug(() -> "Creating MapperFactoryBean with name '" + holder.getBeanName()
           + "' and '" + beanClassName + "' mapperInterface");
 
-      // the mapper interface is the original class of the bean
-      // but, the actual class of the bean is MapperFactoryBean
-      /**这里可以看到修改Mapper的构造参数，这个其实是修改了MapperFactoryBean的构造方法，查看
-       * MapperFactoryBean的构造可知，有个构造方法MapperFactoryBean(Class<T> mapperInterface)
-       * mapperInterface就是将beanClassName构造成ValueHolder，所以在创建MapperFactoryBean的时候
-       * mapperInterface属性就是Mapper的接口*/
+      //将原本的BeanDefinition的beanClass作为后面修改之后的MapperFactoryBean的构造参数
       definition.getConstructorArgumentValues().addGenericArgumentValue(beanClassName); // issue #59
-      /**设置beanClass的类型，可以看到这里是直接设置MapperFactoryBean，这是个FactoryBean，在getBean的时候，会
-       * 执行getObject方法*/
+      //设置beanDefinition的class
       definition.setBeanClass(this.mapperFactoryBean.getClass());
 
       definition.getPropertyValues().add("addToConfig", this.addToConfig);
 
       boolean explicitFactoryUsed = false;
+      //设置MapperFactoryBean的sqlSessionFactoryBeanName属性
       if (StringUtils.hasText(this.sqlSessionFactoryBeanName)) {
         definition.getPropertyValues().add("sqlSessionFactory", new RuntimeBeanReference(this.sqlSessionFactoryBeanName));
         explicitFactoryUsed = true;
       } else if (this.sqlSessionFactory != null) {
+        //设置MapperFactoryBean的sqlSessionFactory属性
         definition.getPropertyValues().add("sqlSessionFactory", this.sqlSessionFactory);
         explicitFactoryUsed = true;
       }
-
+      //设置MapperFactoryBean的sqlSessionTemplate的beanName
       if (StringUtils.hasText(this.sqlSessionTemplateBeanName)) {
         if (explicitFactoryUsed) {
           LOGGER.warn(() -> "Cannot use both: sqlSessionTemplate and sqlSessionFactory together. sqlSessionFactory is ignored.");
@@ -230,15 +225,16 @@ public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
         if (explicitFactoryUsed) {
           LOGGER.warn(() -> "Cannot use both: sqlSessionTemplate and sqlSessionFactory together. sqlSessionFactory is ignored.");
         }
+        //设置MapperFactoryBean的sqlSessionTemplate属性
         definition.getPropertyValues().add("sqlSessionTemplate", this.sqlSessionTemplate);
         explicitFactoryUsed = true;
       }
 
       if (!explicitFactoryUsed) {
         LOGGER.debug(() -> "Enabling autowire by type for MapperFactoryBean with name '" + holder.getBeanName() + "'.");
-        /**设置Mapper的autowired类型为by type，这个很重要，这个是用于Spring的自动注入的，
-         * 可以看到虽然MapperFactoryBean没有注入SqlSessionFactory，但是由于设置Autowire为ByType，并且
-         * MapperFactoryBean中拥有setSqlSessionFactory方法，所以这个会自动注入*/
+        //设置Mapper的autowired类型为by type，这个很重要，这个是用于Spring的自动注入的，
+        //可以看到虽然MapperFactoryBean没有注入SqlSessionFactory，但是由于设置Autowire为ByType，并且
+        //MapperFactoryBean中拥有setSqlSessionFactory方法，所以这个会自动注入
         definition.setAutowireMode(AbstractBeanDefinition.AUTOWIRE_BY_TYPE);
       }
     }

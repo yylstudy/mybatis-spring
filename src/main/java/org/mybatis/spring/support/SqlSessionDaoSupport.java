@@ -56,6 +56,9 @@ public abstract class SqlSessionDaoSupport extends DaoSupport {
     }
   }
 
+  /**
+   * SqlSession模板  SqlSessionTemplate
+   */
   private SqlSessionTemplate sqlSessionTemplate;
 
   /**

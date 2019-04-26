@@ -145,7 +145,7 @@ public final class SqlSessionUtils {
         LOGGER.debug(() -> "Registering transaction synchronization for SqlSession [" + session + "]");
         /**创建一个SqlSessionHolder*/
         holder = new SqlSessionHolder(session, executorType, exceptionTranslator);
-        /**向当前线程中绑定此关系*/
+        /**向当前线程中绑定sqlSession和SqlSessionHolder的映射*/
         TransactionSynchronizationManager.bindResource(sessionFactory, holder);
         TransactionSynchronizationManager.registerSynchronization(new SqlSessionSynchronization(holder, sessionFactory));
         holder.setSynchronizedWithTransaction(true);
@@ -202,18 +202,17 @@ public final class SqlSessionUtils {
   }
 
   /**
-   * Returns if the {@code SqlSession} passed as an argument is being managed by Spring
-   *
-   * @param session a MyBatis SqlSession to check
-   * @param sessionFactory the SqlSessionFactory which the SqlSession was built with
-   * @return true if session is transactional, otherwise false
+   * 不是SqlSession的事务，就提交，否则交由spring提交
+   * @param session
+   * @param sessionFactory
+   * @return
    */
   public static boolean isSqlSessionTransactional(SqlSession session, SqlSessionFactory sessionFactory) {
     notNull(session, NO_SQL_SESSION_SPECIFIED);
     notNull(sessionFactory, NO_SQL_SESSION_FACTORY_SPECIFIED);
-
+    //如果不存在spring事务，这个为空
     SqlSessionHolder holder = (SqlSessionHolder) TransactionSynchronizationManager.getResource(sessionFactory);
-
+    //比较线程变量中的sqlSession和当前的是否一致
     return (holder != null) && (holder.getSqlSession() == session);
   }
 

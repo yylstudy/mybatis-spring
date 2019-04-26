@@ -440,7 +440,7 @@ public class SqlSessionFactoryBean implements FactoryBean<SqlSessionFactory>, In
         configuration.getVariables().putAll(this.configurationProperties);
       }
     }
-    /**根据配置资源文件创建配置类*/
+    //根据配置资源文件创建配置类
     else if (this.configLocation != null) {
       /**创建XmlConfigBuilder类*/
       xmlConfigBuilder = new XMLConfigBuilder(this.configLocation.getInputStream(), null, this.configurationProperties);
@@ -535,7 +535,7 @@ public class SqlSessionFactoryBean implements FactoryBean<SqlSessionFactory>, In
     }
     /**设置环境，需要注意的是这里的事务工厂很重要是SpringManagedTransactionFactory
      * 这个在后面DefaultSqlSession中获取Connection中用到，这个事务工厂会先从当前线程中获取Connection
-     * 也就是事务中，和事务的关联也就是在这里体现的*/
+     * 这也是和spring的事务关联所在*/
     configuration.setEnvironment(new Environment(this.environment, this.transactionFactory, this.dataSource));
 
     if (!isEmpty(this.mapperLocations)) {

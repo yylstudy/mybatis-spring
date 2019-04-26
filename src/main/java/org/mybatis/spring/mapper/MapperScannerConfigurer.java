@@ -318,21 +318,20 @@ public class MapperScannerConfigurer implements BeanDefinitionRegistryPostProces
     scanner.setAddToConfig(this.addToConfig);
     /**注解类*/
     scanner.setAnnotationClass(this.annotationClass);
-    /**默认不设置*/
+    //
     scanner.setMarkerInterface(this.markerInterface);
-    /**默认不设置*/
+    //设置sqlSessionFactory对象
     scanner.setSqlSessionFactory(this.sqlSessionFactory);
-    /**默认不设置*/
+    //设置sqlSessionTemplate对象
     scanner.setSqlSessionTemplate(this.sqlSessionTemplate);
-    /**默认不设置*/
+    //设置sqlSessionFactory的beanName
     scanner.setSqlSessionFactoryBeanName(this.sqlSessionFactoryBeanName);
-    /**默认不设置*/
+    //设置sqlSessionTemplate的beanName
     scanner.setSqlSessionTemplateBeanName(this.sqlSessionTemplateBeanName);
-    /**默认不设置*/
     scanner.setResourceLoader(this.applicationContext);
-    /**默认不设置*/
+    //设置mapper的命名策略
     scanner.setBeanNameGenerator(this.nameGenerator);
-    /**注册我们自定义的Filters*/
+    //注册扫描为mybatis的mapper的bean
     scanner.registerFilters();
     /**执行spring的扫描方法*/
     scanner.scan(StringUtils.tokenizeToStringArray(this.basePackage, ConfigurableApplicationContext.CONFIG_LOCATION_DELIMITERS));

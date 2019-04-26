@@ -82,7 +82,7 @@ public class SqlSessionTemplate implements SqlSession, DisposableBean {
   /**当前SqlSessionTemplate的动态代理类，可以看到当前所有SqlSessionTemplate的方法
    * 都改成由sqlSessionProxy调用，就会调用动态代理的方法*/
   private final SqlSession sqlSessionProxy;
-  /**MyBatisExceptionTranslator*/
+  /**mybatis异常传输器  MyBatisExceptionTranslator*/
   private final PersistenceExceptionTranslator exceptionTranslator;
 
   /**
@@ -133,6 +133,7 @@ public class SqlSessionTemplate implements SqlSession, DisposableBean {
     this.sqlSessionFactory = sqlSessionFactory;
     this.executorType = executorType;
     this.exceptionTranslator = exceptionTranslator;
+    //创建sqlSession的代理对象
     this.sqlSessionProxy = (SqlSession) newProxyInstance(
         SqlSessionFactory.class.getClassLoader(),
         new Class[] { SqlSession.class },
@@ -317,6 +318,7 @@ public class SqlSessionTemplate implements SqlSession, DisposableBean {
    */
   @Override
   public <T> T getMapper(Class<T> type) {
+    //可以看到获取mapper还是直接调用SqlSessionFactory.getConfiguration()，去获取
     return getConfiguration().getMapper(type, this);
   }
 
@@ -430,7 +432,7 @@ public class SqlSessionTemplate implements SqlSession, DisposableBean {
   private class SqlSessionInterceptor implements InvocationHandler {
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-      /**获取当前的SqlSession*/
+      /**获取mybatis真正执行的SqlSession也就是DefaultSqlSession对象*/
       SqlSession sqlSession = getSqlSession(
           SqlSessionTemplate.this.sqlSessionFactory,
           SqlSessionTemplate.this.executorType,
@@ -438,7 +440,7 @@ public class SqlSessionTemplate implements SqlSession, DisposableBean {
       try {
         /**使用上面创建出来的DefaultSqlSession执行目标方法*/
         Object result = method.invoke(sqlSession, args);
-        /**这个是false，因为两个SqlSession肯定是一样的*/
+        //不是SqlSession的事务，就提交，否则交由spring提交
         if (!isSqlSessionTransactional(sqlSession, SqlSessionTemplate.this.sqlSessionFactory)) {
           // force commit even on non-dirty sessions because some databases require
           // a commit/rollback before calling close()
