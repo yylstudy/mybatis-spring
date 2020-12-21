@@ -107,7 +107,7 @@
 
     <mybatis.version>3.5.0</mybatis.version>
     <spring.version>5.0.8.RELEASE</spring.version>
-    <spring-batch.version>4.0.1.RELEASE</spring-batch.version>
+    <spring-batch.version>4.3.1</spring-batch.version>
 
     <!-- Reverting back to prior unit temporarily until code fixed -->
     <junit-engine.version>5.2.0</junit-engine.version>
