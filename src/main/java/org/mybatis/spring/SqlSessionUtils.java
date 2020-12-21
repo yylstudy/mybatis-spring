@@ -93,7 +93,7 @@ public final class SqlSessionUtils {
 
     notNull(sessionFactory, NO_SQL_SESSION_FACTORY_SPECIFIED);
     notNull(executorType, NO_EXECUTOR_TYPE_SPECIFIED);
-    /**从当前线程变量中获取连接，第一次是不存在的 */
+    //从当前线程变量中获取连接，第一次是不存在的
     SqlSessionHolder holder = (SqlSessionHolder) TransactionSynchronizationManager.getResource(sessionFactory);
 
     SqlSession session = sessionHolder(executorType, holder);
@@ -108,7 +108,7 @@ public final class SqlSessionUtils {
      * 这样就和pring的事务关联上了
      * */
     session = sessionFactory.openSession(executorType);
-    /**注册SessionHolder*/
+    //注册SessionHolder
     registerSessionHolder(sessionFactory, executorType, exceptionTranslator, session);
 
     return session;
@@ -137,15 +137,15 @@ public final class SqlSessionUtils {
   private static void registerSessionHolder(SqlSessionFactory sessionFactory, ExecutorType executorType,
       PersistenceExceptionTranslator exceptionTranslator, SqlSession session) {
     SqlSessionHolder holder;
-    /**这个不为空，其中Set没有元素*/
+    //若开启spring的事务，这个不为空，其中Set没有元素
     if (TransactionSynchronizationManager.isSynchronizationActive()) {
       Environment environment = sessionFactory.getConfiguration().getEnvironment();
       /**默认不配置，那Mybatis的事务工厂都是SpringManagedTransactionFactory*/
       if (environment.getTransactionFactory() instanceof SpringManagedTransactionFactory) {
         LOGGER.debug(() -> "Registering transaction synchronization for SqlSession [" + session + "]");
-        /**创建一个SqlSessionHolder*/
+        //创建一个SqlSessionHolder
         holder = new SqlSessionHolder(session, executorType, exceptionTranslator);
-        /**向当前线程中绑定sqlSession和SqlSessionHolder的映射*/
+        //向当前线程中绑定sqlSession和SqlSessionHolder的映射
         TransactionSynchronizationManager.bindResource(sessionFactory, holder);
         TransactionSynchronizationManager.registerSynchronization(new SqlSessionSynchronization(holder, sessionFactory));
         holder.setSynchronizedWithTransaction(true);

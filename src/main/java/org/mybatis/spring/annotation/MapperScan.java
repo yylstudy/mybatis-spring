@@ -67,6 +67,8 @@ import org.springframework.context.annotation.Import;
  * @see MapperScannerRegistrar
  * @see MapperFactoryBean
  */
+
+//mybatis 注册到spring容器的扫描启用注解
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Documented

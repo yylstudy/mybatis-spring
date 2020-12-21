@@ -51,7 +51,7 @@ public class SpringManagedTransaction implements Transaction {
   private static final Logger LOGGER = LoggerFactory.getLogger(SpringManagedTransaction.class);
 
   private final DataSource dataSource;
-  /***/
+  /**数据库连接*/
   private Connection connection;
 
   private boolean isConnectionTransactional;
@@ -88,10 +88,10 @@ public class SpringManagedTransaction implements Transaction {
    * @throws SQLException
    */
   private void openConnection() throws SQLException {
-    /**获取数据库连接，这个和JdbcTemplate一样都是尝试从当前线程中获取Connection，若不存在则，新建一个数据库连接*/
+    //获取数据库连接，这个和JdbcTemplate一样都是尝试从当前线程中获取Connection，若不存在则，新建一个数据库连接
     this.connection = DataSourceUtils.getConnection(this.dataSource);
     this.autoCommit = this.connection.getAutoCommit();
-    /**当前连接是spring管理的事务的连接*/
+    //当前连接是spring管理的事务的连接
     this.isConnectionTransactional = DataSourceUtils.isConnectionTransactional(this.connection, this.dataSource);
 
     LOGGER.debug(() ->

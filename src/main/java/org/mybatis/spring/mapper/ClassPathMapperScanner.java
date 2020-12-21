@@ -73,7 +73,9 @@ public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
   private Class<? extends Annotation> annotationClass;
 
   private Class<?> markerInterface;
-
+  /**
+   * MapperFactoryBean 这个是mybatis扫描出来的BeanDefinition的BeanClass
+   */
   private MapperFactoryBean<?> mapperFactoryBean = new MapperFactoryBean<>();
 
   public ClassPathMapperScanner(BeanDefinitionRegistry registry) {
@@ -127,7 +129,7 @@ public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
     // if specified, use the given annotation and / or marker interface
     //添加符合注解的mapper
     if (this.annotationClass != null) {
-      /**创建自定义注解的AnnotationTypeFilter*/
+      //创建自定义注解的AnnotationTypeFilter
       addIncludeFilter(new AnnotationTypeFilter(this.annotationClass));
       acceptAllInterfaces = false;
     }
@@ -147,7 +149,7 @@ public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
       addIncludeFilter((metadataReader, metadataReaderFactory) -> true);
     }
 
-    // exclude package-info.java
+    // 排除 package-info.java
     addExcludeFilter((metadataReader, metadataReaderFactory) -> {
       String className = metadataReader.getClassMetadata().getClassName();
       return className.endsWith("package-info");
@@ -177,7 +179,7 @@ public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
     if (beanDefinitions.isEmpty()) {
       LOGGER.warn(() -> "No MyBatis mapper was found in '" + Arrays.toString(basePackages) + "' package. Please check your configuration.");
     } else {
-      /**处理扫描出来的Mapper类的BeanDefinitioonHolder集合*/
+      //处理扫描出来的Mapper类的BeanDefinitioonHolder集合
       processBeanDefinitions(beanDefinitions);
     }
 
@@ -191,7 +193,7 @@ public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
   private void processBeanDefinitions(Set<BeanDefinitionHolder> beanDefinitions) {
     GenericBeanDefinition definition;
     for (BeanDefinitionHolder holder : beanDefinitions) {
-      /**扫描出来的ScannedGenericBeanDefinition是GenericBeanDefinition的子类*/
+      //扫描出来的ScannedGenericBeanDefinition是GenericBeanDefinition的子类
       definition = (GenericBeanDefinition) holder.getBeanDefinition();
       String beanClassName = definition.getBeanClassName();
       LOGGER.debug(() -> "Creating MapperFactoryBean with name '" + holder.getBeanName()

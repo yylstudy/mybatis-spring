@@ -51,7 +51,7 @@ public abstract class SqlSessionDaoSupport extends DaoSupport {
    */
   public void setSqlSessionFactory(SqlSessionFactory sqlSessionFactory) {
     if (this.sqlSessionTemplate == null || sqlSessionFactory != this.sqlSessionTemplate.getSqlSessionFactory()) {
-      /**初始化sqlSessionTemplate，这个类似DefaultSqlSession*/
+      //初始化sqlSessionTemplate，这个类似DefaultSqlSession
       this.sqlSessionTemplate = createSqlSessionTemplate(sqlSessionFactory);
     }
   }

@@ -109,7 +109,7 @@ public class MapperFactoryBean<T> extends SqlSessionDaoSupport implements Factor
    */
   @Override
   public T getObject() throws Exception {
-    /**所以这里就是我们经常看到的mybatis获取Mapper的源码*/
+    //getSqlSession获取到的SqlSessionTemplate
     return getSqlSession().getMapper(this.mapperInterface);
   }
 

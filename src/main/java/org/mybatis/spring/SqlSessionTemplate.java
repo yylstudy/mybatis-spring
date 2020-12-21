@@ -318,7 +318,11 @@ public class SqlSessionTemplate implements SqlSession, DisposableBean {
    */
   @Override
   public <T> T getMapper(Class<T> type) {
-    //可以看到获取mapper还是直接调用SqlSessionFactory.getConfiguration()，去获取
+    //注意这里的sqlSession是SqlSessionTemplate
+    //这里创建一个动态代理对象，当使用此对象调用dao的方法时会执行
+    //MapperProxy的invoke方法，而MapperProxy中的SqlSession就是当前对象，所以会调用当前insert/update/delete/select方法，
+    //也就是会执行sqlSessionProxy的动态代理逻辑，也就是SqlSessionInterceptor的invoke方法，这里有两层代理，所以有点绕
+    //SqlSessionInterceptor的invoke方法会创建真正执行所需的DefaultSqlSession
     return getConfiguration().getMapper(type, this);
   }
 
@@ -432,13 +436,13 @@ public class SqlSessionTemplate implements SqlSession, DisposableBean {
   private class SqlSessionInterceptor implements InvocationHandler {
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-      /**获取mybatis真正执行的SqlSession也就是DefaultSqlSession对象*/
+      //获取mybatis真正执行的SqlSession也就是DefaultSqlSession对象
       SqlSession sqlSession = getSqlSession(
           SqlSessionTemplate.this.sqlSessionFactory,
           SqlSessionTemplate.this.executorType,
           SqlSessionTemplate.this.exceptionTranslator);
       try {
-        /**使用上面创建出来的DefaultSqlSession执行目标方法*/
+        //使用上面创建出来的DefaultSqlSession执行目标方法
         Object result = method.invoke(sqlSession, args);
         //不是SqlSession的事务，就提交，否则交由spring提交
         if (!isSqlSessionTransactional(sqlSession, SqlSessionTemplate.this.sqlSessionFactory)) {
@@ -461,7 +465,7 @@ public class SqlSessionTemplate implements SqlSession, DisposableBean {
         throw unwrapped;
       } finally {
         if (sqlSession != null) {
-          /**关闭SqlSesison*/
+          //关闭SqlSesison
           closeSqlSession(sqlSession, SqlSessionTemplate.this.sqlSessionFactory);
         }
       }

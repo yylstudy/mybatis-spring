@@ -308,17 +308,17 @@ public class MapperScannerConfigurer implements BeanDefinitionRegistryPostProces
    */
   @Override
   public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) {
+    //是否开启属性占位符解析，主要是对basePackage、sqlSessionFactoryBeanName、sqlSessionTemplateBeanName进行解析
     if (this.processPropertyPlaceHolders) {
       processPropertyPlaceHolders();
     }
-    /**新建一个ClassPath的Mapper扫描器，查看其构造器，可以有个很重要的属性，就是useDefaultFilters为false
-     * 这个很重要，不然就是和spring一样扫描Component注解了，这个应该就是要换成我们自定义的注解*/
+    //新建一个ClassPath的Mapper扫描器，查看其构造器，可以有个很重要的属性，就是useDefaultFilters为false
+    //这个很重要，不然就是和spring一样扫描Component注解了，这个应该就是要换成我们自定义的注解
     ClassPathMapperScanner scanner = new ClassPathMapperScanner(registry);
-    /**true*/
+    //true
     scanner.setAddToConfig(this.addToConfig);
-    /**注解类*/
+    //注解类
     scanner.setAnnotationClass(this.annotationClass);
-    //
     scanner.setMarkerInterface(this.markerInterface);
     //设置sqlSessionFactory对象
     scanner.setSqlSessionFactory(this.sqlSessionFactory);
@@ -333,7 +333,7 @@ public class MapperScannerConfigurer implements BeanDefinitionRegistryPostProces
     scanner.setBeanNameGenerator(this.nameGenerator);
     //注册扫描为mybatis的mapper的bean
     scanner.registerFilters();
-    /**执行spring的扫描方法*/
+    //执行spring的扫描方法
     scanner.scan(StringUtils.tokenizeToStringArray(this.basePackage, ConfigurableApplicationContext.CONFIG_LOCATION_DELIMITERS));
   }
 
